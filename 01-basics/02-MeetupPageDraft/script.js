@@ -98,7 +98,7 @@ export const app = new Vue({
         this.meetup = await fetchMeetupDataById(meetupId);
         this.receiveMeetupCoverLink();
       } catch {
-        console.warn('Fetch meetup data failed');
+        console.warn('Fetch meetup data is failed');
       } finally {
         this.isFetching = false;
       }

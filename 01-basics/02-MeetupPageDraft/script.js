@@ -44,23 +44,81 @@ const agendaItemIcons = {
   other: 'cal-sm',
 };
 
+async function fetchMeetupDataById(meetupId) {
+  const response = await fetch(`${API_URL}/meetups/${meetupId}`);
+  return await response.json();
+}
+
+function getDateOnlyString(date) {
+  const YYYY = date.getFullYear();
+  const MM = (date.getMonth() + 1).toString().padStart(2, '0');
+  const DD = date.getDate().toString().padStart(2, '0');
+  return `${YYYY}-${MM}-${DD}`;
+}
+
 export const app = new Vue({
   el: '#app',
 
   data: {
-    //
+    meetup: null,
+    isFetching: false,
   },
 
   mounted() {
-    // Требуется получить данные митапа с API
+    this.getMeetupDataById(MEETUP_ID);
   },
 
   computed: {
-    //
+    meetupCover() {
+      return this.meetup?.cover
+        ? { '--bg-url': `url(${this.meetup.cover})` }
+        : '';
+    },
+    meetupFormattedLocalDate() {
+      return this.meetup?.date
+        ? new Date(this.meetup.date).toLocaleString(navigator.language, {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+          })
+        : '';
+    },
+    getMeetupDateOnlyString() {
+      return this.meetup?.date
+        ? getDateOnlyString(new Date(this.meetup.date))
+        : '';
+    },
+    getAgendaItemIcons() {
+      return agendaItemIcons;
+    },
+    getAgendaItemTitles() {
+      return agendaItemTitles;
+    },
   },
 
   methods: {
-    // Получение данных с API предпочтительнее оформить отдельным методом,
-    // а не писать прямо в mounted()
+    async getMeetupDataById(meetupId) {
+      this.isFetching = true;
+
+      try {
+        this.meetup = await fetchMeetupDataById(meetupId);
+        this.receiveMeetupCoverLink();
+      } catch {
+        console.warn('Fetch meetup data is failed');
+      } finally {
+        this.isFetching = false;
+      }
+    },
+    receiveMeetupCoverLink() {
+      try {
+        const link = getMeetupCoverLink(this.meetup);
+        this.meetup = {
+          ...this.meetup,
+          cover: link,
+        };
+      } catch {
+        console.log('Meetup image is unavailable');
+      }
+    },
   },
 });

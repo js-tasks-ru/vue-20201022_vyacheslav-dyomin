@@ -88,6 +88,12 @@ export const app = new Vue({
         ? getDateOnlyString(new Date(this.meetup.date))
         : '';
     },
+    getAgendaItemIcons() {
+      return agendaItemIcons;
+    },
+    getAgendaItemTitles() {
+      return agendaItemTitles;
+    },
   },
 
   methods: {
@@ -113,13 +119,6 @@ export const app = new Vue({
       } catch {
         console.log('Meetup image is unavailable');
       }
-    },
-    getAgendaItemIconLink(type) {
-      const itemIcon = agendaItemIcons[type];
-      return `/assets/icons/icon-${itemIcon}.svg`;
-    },
-    getAgendaItemTitle(item) {
-      return item.title || agendaItemTitles[item.type];
     },
   },
 });

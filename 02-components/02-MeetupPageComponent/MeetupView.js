@@ -26,7 +26,7 @@ export const MeetupView = {
             <meetup-info
                 :organizer="meetup.organizer"
                 :place="meetup.place"
-                :date="meetup.date"
+                :date="new Date(meetup.date)"
             >
             </meetup-info>
           </div>
@@ -47,7 +47,7 @@ export const MeetupView = {
   },
   data() {
     return {
-      coverLink: getMeetupCoverLink(this.meetup) || ''
+      coverLink: getMeetupCoverLink(this.meetup) || '',
     };
   },
 };

@@ -14,9 +14,11 @@ export const MeetupCover = {
   },
   computed: {
     imageUrl() {
-      return {
-        '--bg-url': `url(${this.link})`,
-      };
+      return this.link
+        ? {
+            '--bg-url': `url(${this.link})`,
+          }
+        : '';
     },
   },
 };

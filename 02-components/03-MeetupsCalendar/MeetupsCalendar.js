@@ -155,9 +155,8 @@ export const MeetupsCalendar = {
       if (month === 12) this.setFullYear(this.currentYear + 1);
     },
     setMonth(month) {
-      const s = new Date(this.currentDate.setMonth(month));
-      const day = new Date(s.setDate(1));
-      this.currentDate = day;
+      const setedMonthDate = new Date(this.currentDate.setMonth(month));
+      this.currentDate = new Date(setedMonthDate.setDate(1));
     },
     setFullYear(year) {
       const event = new Date(this.currentDate);

@@ -13,7 +13,7 @@ export const MeetupsCalendar = {
               class="rangepicker__selector-control-left"
               @click="setPrevMonthAndYear"
           ></button>
-          <div>{{ getMonthString }} {{ currentYear }}</div>
+          <div>{{ monthString }} {{ currentYear }}</div>
           <button 
               class="rangepicker__selector-control-right"
               @click="setNextMonthAndYear"
@@ -22,7 +22,7 @@ export const MeetupsCalendar = {
       </div>
       <div class="rangepicker__date-grid">
         <div 
-            v-for="day in getConsolidatedData"
+            v-for="day in consolidatedData"
             :class="['rangepicker__cell', {'rangepicker__cell_inactive': day.status === 'inactive'}]">
             {{ day.value }}
             <a
@@ -51,32 +51,32 @@ export const MeetupsCalendar = {
   computed: {
     meetupsForCurrentMonth() {
       return this.meetups.filter((item) => {
-        return new Date(item.date).getMonth() === this.currentDate.getMonth()
-            && new Date(item.date).getFullYear() === this.currentYear;
+        return (
+          new Date(item.date).getMonth() === this.currentDate.getMonth() &&
+          new Date(item.date).getFullYear() === this.currentYear
+        );
       });
     },
-    getMonthString() {
+    monthString() {
       return this.currentDate.toLocaleString(navigator.language, {
         month: 'long',
       });
     },
-    getConsolidatedData() {
-      if (Number.isInteger(this.getDaysInMonth / 7)) {
-        return [...this.getCurrentMonthData];
+    consolidatedData() {
+      if (Number.isInteger(this.daysInMonth / 7)) {
+        return [...this.currentMonthData];
       } else {
         return [
-          ...this.getPrevMonthData,
-          ...this.getCurrentMonthData,
-          ...this.getNextMonthData,
+          ...this.prevMonthData,
+          ...this.currentMonthData,
+          ...this.nextMonthData,
         ].slice(0, this.maxDaysPerView);
       }
     },
-    getPrevMonthData() {
-      const arr = [...Array(this.getDaysInPreviousMonth + 1).keys()].slice(1);
+    prevMonthData() {
+      const arr = [...Array(this.daysInPreviousMonth + 1).keys()].slice(1);
       const startValue =
-        this.getDayWeekFirstDayMonth === 0
-          ? 6
-          : this.getDayWeekFirstDayMonth - 1;
+        this.dayWeekFirstDayMonth === 0 ? 6 : this.dayWeekFirstDayMonth - 1;
       const days = arr.slice(arr.length - startValue, arr.length);
       const result = [];
       days.forEach((el) => {
@@ -84,52 +84,56 @@ export const MeetupsCalendar = {
       });
       return result;
     },
-    getCurrentMonthData() {
-      const arr = [...Array(this.getDaysInMonth + 1).keys()].slice(1);
-      const result = [];
-      arr.forEach((el) => {
-        result.push({ value: el, status: 'active' });
+    currentMonthData() {
+      const arr = [...Array(this.daysInMonth + 1).keys()].slice(1);
+
+      return arr.map((el) => {
+        return {
+          value: el,
+          status: 'active',
+        };
       });
-      return result;
     },
-    getNextMonthData() {
-      const arr = [...Array(this.getDaysInNextMonth + 1).keys()].slice(1);
+    nextMonthData() {
+      const arr = [...Array(this.daysInNextMonth + 1).keys()].slice(1);
       const lastValue =
         this.maxDaysPerView -
-        this.getPrevMonthData.length -
-        this.getCurrentMonthData.length;
+        this.prevMonthData.length -
+        this.currentMonthData.length;
+
       if (lastValue === 0) {
         return [];
       }
-      const days = arr.slice(0, lastValue);
-      const result = [];
-      days.forEach((el) => {
-        result.push({ value: el, status: 'inactive' });
+
+      return arr.slice(0, lastValue).map((el) => {
+        return {
+          value: el,
+          status: 'inactive',
+        };
       });
-      return result;
     },
-    getDaysInPreviousMonth() {
+    daysInPreviousMonth() {
       return new Date(
         this.currentYear,
         this.currentDate.getMonth(),
         0,
       ).getDate();
     },
-    getDaysInNextMonth() {
+    daysInNextMonth() {
       return new Date(
         this.currentYear,
         this.currentDate.getMonth() + 2,
         0,
       ).getDate();
     },
-    getDaysInMonth() {
+    daysInMonth() {
       return new Date(
         this.currentYear,
         this.currentDate.getMonth() + 1,
         0,
       ).getDate();
     },
-    getDayWeekFirstDayMonth() {
+    dayWeekFirstDayMonth() {
       return new Date(
         `${this.currentDate.getMonth() + 1} 
         1, 
@@ -151,7 +155,9 @@ export const MeetupsCalendar = {
       if (month === 12) this.setFullYear(this.currentYear + 1);
     },
     setMonth(month) {
-      this.currentDate = new Date(this.currentDate.setMonth(month));
+      const s = new Date(this.currentDate.setMonth(month));
+      const day = new Date(s.setDate(1));
+      this.currentDate = day;
     },
     setFullYear(year) {
       const event = new Date(this.currentDate);

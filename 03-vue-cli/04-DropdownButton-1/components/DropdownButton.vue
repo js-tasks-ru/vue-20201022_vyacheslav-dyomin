@@ -9,15 +9,14 @@
       @click="isShowMenu = !isShowMenu"
     >
       <app-icon v-if="selectedOption.icon" :icon="selectedOption.icon" />
-      {{ title }} <span v-if="selectedOption.text">-</span>
-      {{ selectedOption.text }}
+      {{ title }} <span v-if="selectedOption.text">-</span> {{ selectedOption.text }}
     </button>
 
     <div :class="['dropdown__menu', { show: isShowMenu }]">
       <button
         v-for="item in options"
         :key="item.value"
-        :class="['dropdown__item', { dropdown__item_icon: item.icon }]"
+        :class="['dropdown__item', { dropdown__item_icon: isAnyOptionHasIcon }]"
         type="button"
         @click="handleClickMenuItem(item.value)"
       >
@@ -63,7 +62,7 @@ export default {
     },
     isAnyOptionHasIcon() {
       return !!this.options.some((el) => !!el.icon);
-    }
+    },
   },
 
   model: {
